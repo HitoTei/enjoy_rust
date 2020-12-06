@@ -65,44 +65,45 @@ fn model(app: &App) -> Model {
     }
 }
 
-fn update(_app: &App, _model: &mut Model, _update: Update) {
-    if _model.que.is_empty() {
+fn update(_app: &App, model: &mut Model, _update: Update) {
+    if model.que.is_empty() {
         return;
     }
-    let (cost, crt) = match _model.que.peek() {
+    let (cost, crt) = match model.que.peek() {
         Some(e) => *e,
         None => return,
     };
-    if _model.cost[crt] < cost {
-        _model.que.pop();
-        _model.i = 0;
+    if model.cost[crt] < cost {
+        model.que.pop();
+        model.i = 0;
         return;
     }
 
-    if _model.i >= _model.edge[crt].len() {
-        _model.i = 0;
-        _model.que.pop();
+    if model.i >= model.edge[crt].len() {
+        model.i = 0;
+        model.que.pop();
         return;
     }
 
-    let next = _model.edge[crt][_model.i];
-    _model.checking_line = (crt, next);
+    let next = model.edge[crt][model.i];
+    model.checking_line = (crt, next);
 
-    let cost = cost + calc_cost(_model.node[crt], _model.node[next]);
-    if _model.cost[next] > cost {
-        _model.confirmed_line[next] = crt;
-        _model.cost[next] = cost;
-        _model.que.push((cost, next));
+    let cost = cost + calc_cost(model.node[crt], model.node[next]);
+    if model.cost[next] > cost {
+        model.confirmed_line[next] = crt;
+        model.cost[next] = cost;
+        model.que.push((cost, next));
     }
-    _model.i += 1;
+    model.i += 1;
 }
 
-fn view(app: &App, _model: &Model, frame: Frame) {
+fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     let boundary = app.window_rect();
+
     draw.background().color(WHITE);
 
-    draw.text(&format!("que size is {}", _model.que.len())[..])
+    draw.text(&format!("que size is {}", model.que.len())[..])
         .x_y(boundary.left() + 60.0, boundary.top() - 30.0)
         .font_size(20)
         .color(BLACK);
@@ -116,42 +117,42 @@ fn view(app: &App, _model: &Model, frame: Frame) {
     };
 
     for i in 0..NODE_SIZE {
-        for e in _model.edge[i].iter() {
+        for e in model.edge[i].iter() {
             draw_line(
-                _model.node[i],
-                _model.node[*e],
+                model.node[i],
+                model.node[*e],
                 GOLD,
             );
         }
     }
 
-    for i in 0.._model.confirmed_line.len() {
-        if _model.confirmed_line[i] == NODE_SIZE {
+    for i in 0..model.confirmed_line.len() {
+        if model.confirmed_line[i] == NODE_SIZE {
             continue;
         }
         draw_line(
-            _model.node[_model.confirmed_line[i]],
-            _model.node[i],
+            model.node[model.confirmed_line[i]],
+            model.node[i],
             DARKBLUE,
         );
     }
     draw_line(
-        _model.node[_model.checking_line.1],
-        _model.node[_model.checking_line.0],
+        model.node[model.checking_line.1],
+        model.node[model.checking_line.0],
         CRIMSON,
     );
-    for i in 0.._model.cost.len() {
-        draw.text(&format!("{}", _model.cost[i])[..])
+    for i in 0..model.cost.len() {
+        draw.text(&format!("{}", model.cost[i])[..])
             .color(BLACK)
             .x_y(
-                get_point(_model.node[i], boundary).x + 10.0,
-                get_point(_model.node[i], boundary).y + 10.0,
+                get_point(model.node[i], boundary).x + 10.0,
+                get_point(model.node[i], boundary).y + 10.0,
             );
     }
     draw.ellipse()
         .x_y(
-            get_point(_model.node[0], boundary).x,
-            get_point(_model.node[0], boundary).y,
+            get_point(model.node[0], boundary).x,
+            get_point(model.node[0], boundary).y,
         )
         .w_h(15.0, 15.0).color(GREEN);
     draw.to_frame(app, &frame).unwrap();

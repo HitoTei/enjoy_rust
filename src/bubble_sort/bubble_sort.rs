@@ -27,31 +27,31 @@ fn model(app: &App) -> Model {
 }
 
 
-fn update(_app: &App, _model: &mut Model, _update: Update) {
-    if _model.j >= _model.speeds.len() {
-        _model.j = 0;
-        _model.i += 1;
+fn update(_app: &App, model: &mut Model, _update: Update) {
+    if model.j >= model.speeds.len() {
+        model.j = 0;
+        model.i += 1;
     }
-    if _model.i >= _model.speeds.len() {
-        reinitialize_model(_model);
+    if model.i >= model.speeds.len() {
+        reinitialize_model(model);
         return;
     }
-    let i = _model.i;
-    let j = _model.j;
-    if _model.speeds[i] > _model.speeds[j] {
-        _model.speeds.swap(i,j);
+    let i = model.i;
+    let j = model.j;
+    if model.speeds[i] > model.speeds[j] {
+        model.speeds.swap(i, j);
     }
-    _model.j += 1;
+    model.j += 1;
 }
 
-fn view(app: &App, _model: &Model, frame: Frame) {
+fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(PLUM);
     let boundary = app.window_rect();
 
-    for i in 0.._model.speeds.len() {
+    for i in 0..model.speeds.len() {
         let y = map_range(
-            _model.speeds[i] as f32,
+            model.speeds[i] as f32,
             0.0,
             SIZE as f32,
             0.0,
@@ -60,7 +60,7 @@ fn view(app: &App, _model: &Model, frame: Frame) {
         let x = map_range(
             i as f32,
             0.0,
-            _model.speeds.len() as f32,
+            model.speeds.len() as f32,
             boundary.left(),
             boundary.right(),
         );
@@ -68,8 +68,8 @@ fn view(app: &App, _model: &Model, frame: Frame) {
         draw.rect()
             .x_y(x,boundary.bottom())
             .w_h(10.0,y).color(
-            if i == _model.i { FIREBRICK }
-            else if i == _model.j { STEELBLUE }
+            if i == model.i { FIREBRICK }
+            else if i == model.j { STEELBLUE }
             else { AZURE }
         );
     }
@@ -77,9 +77,9 @@ fn view(app: &App, _model: &Model, frame: Frame) {
     draw.to_frame(app, &frame).unwrap();
 }
 
-fn reinitialize_model(_model: &mut Model){
+fn reinitialize_model(model: &mut Model){
     let mut rng = rand::thread_rng();
-    _model.speeds.shuffle(&mut rng);
-    _model.i = 0;
-    _model.j = 0;
+    model.speeds.shuffle(&mut rng);
+    model.i = 0;
+    model.j = 0;
 }
